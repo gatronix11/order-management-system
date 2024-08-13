@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -32,6 +33,9 @@ const orderSchema = new mongoose.Schema({
 
 // Order Model
 const Order = mongoose.model('Order', orderSchema);
+
+// Serve static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Routes
 
@@ -73,6 +77,16 @@ app.post('/api/orders', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+// Serve add_order.html
+app.get('/addOrder', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'addOrder.html'));
+});
+
+// Serve view_orders.html
+app.get('/viewOrders', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'viewOrders.html'));
 });
 
 // Start server
