@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>View Orders</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #filterSection {
+      margin: 20px auto;
+      max-width: 600px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    button {
+      padding: 6px 12px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-send {
+      background-color: #007bff;
+      color: white;
+    }
+    .btn-send:hover {
+      background-color: #0056b3;
+    }
+    .btn-deliver {
+      background-color: #28a745;
+      color: white;
+    }
+    .btn-deliver:hover {
+      background-color: #218838;
+    }
+    .btn-return {
+      background-color: #dc3545;
+      color: white;
+    }
+    .btn-return:hover {
+      background-color: #c82333;
+    }
+    .status-send {
+      color: #007bff;
+    }
+    .status-deliver {
+      color: #28a745;
+    }
+    .status-return {
+      color: #dc3545;
+    }
+    @media (max-width: 768px) {
+      table, th, td {
+        font-size: 12px;
+      }
+      button {
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+    }
+    @media (max-width: 480px) {
+      table, th, td {
+        font-size: 10px;
+      }
+      button {
+        padding: 3px 6px;
+        font-size: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>View Orders</h1>
+  <div id="filterSection">
+    <label for="dateFilter">Filter by Date:</label>
+    <input type="date" id="dateFilter">
+  </div>
+  <div id="ordersContainer"></div>
+  <script>
+    async function fetchOrders(dateFilter = '') {
+      const response = await fetch('http://localhost:3000/orders');
+      const orders = await response.json();
+      const ordersContainer = document.getElementById('ordersContainer');
+      ordersContainer.innerHTML = '';
+
+      // Filter orders by date if a date is provided
+      const filteredOrders = dateFilter ? orders.filter(order => order.createdAt.startsWith(dateFilter)) : orders;
+
+      const ordersByDate = filteredOrders.reduce((acc, order) => {
+        const orderDate = order.createdAt.split('T')[0];
+        if (!acc[orderDate]) {
+          acc[orderDate] = [];
+        }
+        acc[orderDate].push(order);
+        return acc;
+      }, {});
+
+      Object.keys(ordersByDate).forEach(date => {
+        const section = document.createElement('section');
+        const dateHeader = document.createElement('h3');
+        dateHeader.textContent = date;
+        section.appendChild(dateHeader);
+
+        const table = document.createElement('table');
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Address</th>
+              <th>Contact Number</th>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        `;
+
+        ordersByDate[date].forEach(order => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${order.customerName}</td>
+            <td>${order.address}</td>
+            <td>${order.contactNumber}</td>
+            <td>${order.product}</td>
+            <td>${order.price}</td>
+            <td class="status ${getStatusClass(order.status)}">${order.status}</td>
+            <td>
+              <button class="btn-send" onclick="updateStatus('${order._id}', 'Sent for Delivery')">Sent for Delivery</button>
+              <button class="btn-deliver" onclick="updateStatus('${order._id}', 'Delivered')">Delivered</button>
+              <button class="btn-return" onclick="updateStatus('${order._id}', 'Returned')">Returned</button>
+            </td>
+          `;
+          table.querySelector('tbody').appendChild(row);
+        });
+
+        section.appendChild(table);
+        ordersContainer.appendChild(section);
+      });
+    }
+
+    function getStatusClass(status) {
+      switch (status) {
+        case 'Sent for Delivery': return 'status-send';
+        case 'Delivered': return 'status-deliver';
+        case 'Returned': return 'status-return';
+        default: return '';
+      }
+    }
+
+    async function updateStatus(id, status) {
+      await fetch(`http://localhost:3000/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      fetchOrders(document.getElementById('dateFilter').value);
+    }
+
+    document.getElementById('dateFilter').addEventListener('change', (e) => {
+      fetchOrders(e.target.value);
+    });
+
+    fetchOrders(); // Initial fetch with no date filter
+  </script>
+</body>
+</html>
