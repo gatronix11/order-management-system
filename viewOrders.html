@@ -60,7 +60,7 @@
   <script>
     // Function to fetch and display orders
     function fetchOrders(date = '') {
-      const url = date ? `https://your-app-name.herokuapp.com/api/orders?date=${date}` : 'https://your-app-name.herokuapp.com/api/orders';
+      const url = date ? `https://order-management-system.herokuapp.com/api/orders?date=${date}` : 'https://order-management-system.herokuapp.com/api/orders';
 
       fetch(url)
         .then(response => response.json())
