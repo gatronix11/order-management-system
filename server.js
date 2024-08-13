@@ -1,48 +1,81 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 
 const app = express();
-app.use(bodyParser.json());
-app.use(cors());
+const port = process.env.PORT || 3000;
 
-mongoose.connect(process.env.MONGODB_URI, {
+// Middleware
+app.use(cors());
+app.use(bodyParser.json());
+
+// MongoDB connection
+const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/order-management';
+mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 
+// Order Schema
 const orderSchema = new mongoose.Schema({
   customerName: String,
   address: String,
   contactNumber: String,
   product: String,
   price: Number,
-  status: { type: String, default: 'Pending Delivery' },
-  createdAt: { type: Date, default: Date.now }
+  status: { type: String, enum: ['Scheduled for Delivery', 'Sent for Delivery', 'Delivered', 'Returned'] },
+  orderDate: { type: Date, default: Date.now }
 });
 
-
+// Order Model
 const Order = mongoose.model('Order', orderSchema);
 
-app.post('/orders', async (req, res) => {
-  const order = new Order(req.body);
-  await order.save();
-  res.send(order);
+// Routes
+
+// Get all orders or filter by date
+app.get('/api/orders', async (req, res) => {
+  try {
+    const { date } = req.query;
+    const query = {};
+
+    if (date) {
+      const startDate = new Date(date);
+      const endDate = new Date(date);
+      endDate.setDate(endDate.getDate() + 1);
+      query.orderDate = { $gte: startDate, $lt: endDate };
+    }
+
+    const orders = await Order.find(query);
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.get('/orders', async (req, res) => {
-  const orders = await Order.find();
-  res.send(orders);
+// Create a new order
+app.post('/api/orders', async (req, res) => {
+  try {
+    const { customerName, address, contactNumber, product, price, status, orderDate } = req.body;
+    const newOrder = new Order({
+      customerName,
+      address,
+      contactNumber,
+      product,
+      price,
+      status,
+      orderDate
+    });
+    await newOrder.save();
+    res.status(201).json(newOrder);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.put('/orders/:id', async (req, res) => {
-  const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.send(order);
-});
-
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+// Start server
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
