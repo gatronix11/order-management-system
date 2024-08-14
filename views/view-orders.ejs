@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>View Orders</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>GATRONIX STORE</h1>
+    <h2>Order Management</h2>
+    <form action="/view-orders" method="get" class="filters" id="filters-form">
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" value="<%= date || '' %>">
+        
+        <label for="status">Status:</label>
+        <select id="status" name="status">
+            <option value="">All</option>
+            <option value="Pending delivery" <%= status === 'Pending delivery' ? 'selected' : '' %>>Pending delivery</option>
+            <option value="Sent for delivery" <%= status === 'Sent for delivery' ? 'selected' : '' %>>Sent for delivery</option>
+            <option value="Delivered" <%= status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+            <option value="Returned" <%= status === 'Returned' ? 'selected' : '' %>>Returned</option>
+        </select>
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Order Number</th>
+                <th>Order Status</th>
+                <th>Update Status</th>
+                <th>Downloads</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% orders.forEach((order, orderNumber) => { %>
+                <tr>
+                    <td><%= order.orderNumber %></td>
+                    <td class="status-<%= order.status.replace(' ', '-').toLowerCase() %>"><%= order.status %></td>
+                    <td>
+                        <form action="/update-status/<%= order._id %>" method="get" style="display: inline;">
+                            <select name="status" onchange="this.form.submit()">
+                                <option value="Pending delivery" <%= order.status === 'Pending delivery' ? 'selected' : '' %>>Pending delivery</option>
+                                <option value="Sent for delivery" <%= order.status === 'Sent for delivery' ? 'selected' : '' %>>Sent for delivery</option>
+                                <option value="Delivered" <%= order.status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                <option value="Returned" <%= order.status === 'Returned' ? 'selected' : '' %>>Returned</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="download-links">
+                            <a href="/download-pdf/<%= order.orderNumber %>" target="_blank">Download Order Summary</a>
+                            <a href="/generate-shipping-label/<%= order.orderNumber %>" target="_blank">Download Shipping Label</a>
+                        </div>
+                    </td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+    <script>
+        document.getElementById('filters-form').addEventListener('change', function() {
+            this.submit();
+        });
+    </script>
+</body>
+</html>

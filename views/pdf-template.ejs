@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Order Details</h1>
+        <table>
+            <tr>
+                <th>Order Number</th>
+                <td><%= order.orderNumber %></td>
+            </tr>
+            <tr>
+                <th>Customer Name</th>
+                <td><%= order.customerName %></td>
+            </tr>
+            <tr>
+                <th>Address</th>
+                <td><%= order.address %></td>
+            </tr>
+            <tr>
+                <th>Contact Number</th>
+                <td><%= order.contactNumber %></td>
+            </tr>
+            <tr>
+                <th>Product</th>
+                <td><%= order.product %></td>
+            </tr>
+            <tr>
+                <th>Price</th>
+                <td><%= order.price %></td>
+            </tr>
+            <tr>
+                <th>Shipping Method</th>
+                <td><%= order.shippingMethod %></td>
+            </tr>
+            <tr>
+                <th>Order Date</th>
+                <td><%= order.orderDate %></td>
+            </tr>
+            <tr>
+                <th>Status</th>
+                <td><%= order.status %></td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

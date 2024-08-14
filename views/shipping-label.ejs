@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Shipping Label</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 3.75cm; /* 1/8 of A4 page height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0;
+            padding: 5px;
+            box-sizing: border-box;
+            height: 100%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            height: 100%;
+        }
+        td {
+            vertical-align: top;
+            padding: 1px;
+        }
+        .left {
+            padding-right: 10px;
+            padding-right: 8px;
+        }
+        .right {
+            padding-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <table>
+            <tr>
+                <td class="left">
+                    <h3>From:</h3>
+                    <p>Gatronix Store</p>
+                    <p>41/4, Wanguwakade</p>
+                    <p>Madawala Bazaar, Kandy</p>
+                    <p>0766600466</p>
+                </td>
+                <td class="right">
+                    <h3>To:</h3>
+                    <p><%= order.customerName %></p>
+                    <p><%= order.address %></p>
+                    <p><%= order.contactNumber %></p>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
